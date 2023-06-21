@@ -1,0 +1,16 @@
+# Go parameters
+GOCMD = go
+GOBUILD = $(GOCMD) build
+GOCLEAN = $(GOCMD) clean
+GOTEST = $(GOCMD) test
+GOGET = $(GOCMD) get
+
+
+
+gen=protoc --go_out=pb --go-grpc_out=pb --proto_path=proto proto/*.proto
+ protoc --go_out=pb --go-grpc_out=pb --grpc-gateway_out=pb --openapiv2_out=doc/swagger --openapiv2_opt=allow_merge=true --proto_path=proto proto/*.proto
+protoc --go_out=pb --go-grpc_out=pb --grpc-gateway_out=pb --openapiv2_out=doc/swagger --proto_path=proto proto/*.proto
+protoc -I=proto --openapiv2_out=swagger --openapiv2_opt=logtostderr=true movie.proto
+
+
+clean=rm -f myapp

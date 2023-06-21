@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package custom.ignore;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+  bool ignore_field = 10001;
+}
