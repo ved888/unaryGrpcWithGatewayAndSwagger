@@ -1,0 +1,24 @@
+syntax = "proto3";
+import "google/api/annotations.proto";
+
+package pb;
+option go_package="/pb";
+
+message UploadImageRequest {
+  string image_id = 1;
+  string bucket_name = 2;
+  bytes image_path = 3;
+}
+
+message UploadImageResponse {
+  string image_url = 1;
+}
+
+service ImageService {
+  rpc UploadImage(UploadImageRequest) returns (UploadImageResponse){
+    option (google.api.http) = {
+      post: "/v1/image/upload"
+      body:"*"
+    };
+  };
+}
