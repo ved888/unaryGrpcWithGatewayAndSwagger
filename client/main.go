@@ -11,6 +11,7 @@ import (
 	"gRPC2/model"
 	"gRPC2/pb/pb"
 	"github.com/ghodss/yaml"
+	"github.com/go-kratos/swagger-api/openapiv2"
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 	"io/ioutil"
@@ -58,13 +59,15 @@ func main() {
 
 	r := mux.NewRouter()
 
-	sh := http.StripPrefix("/swagger/", http.FileServer(http.Dir("doc/swagger/")))
-	r.PathPrefix("/swagger/").Handler(sh)
+	// set swagger ui router
+	openAPIHandler := openapiv2.NewHandler()
+	r.PathPrefix("/q/").Handler(openAPIHandler)
 
-	// Serve Swagger UI at /swagger
-	//r.Handle("/swagger/", http.StripPrefix("/swagger", http.FileServer(http.Dir("doc/swagger"))))
-	// run this on browser
-	// http://localhost:8080/swagger
+	// run swagger ui on browser by this url
+	fmt.Println("Run swagger ui on browser by this url : http://localhost:8080/q/swagger-ui/")
+
+	// Enable CORS middleware
+	r.Use(enableCors)
 
 	// apply jwt Authentication
 	authRouter := r.PathPrefix("/auth").Subrouter()
@@ -73,13 +76,11 @@ func main() {
 	// Create movie by given fields
 	r.HandleFunc("/movies", func(w http.ResponseWriter, r *http.Request) {
 		var movie model.Movie
-		err := r.ParseMultipartForm(32 << 20)
+		err := json.NewDecoder(r.Body).Decode(&movie)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		movie.Title = r.PostFormValue("title")
-		movie.Genre = r.PostFormValue("genre")
 		if movie.Title == "" {
 			http.Error(w, "title is required", http.StatusBadRequest)
 			return
@@ -88,7 +89,6 @@ func main() {
 			http.Error(w, "Genre is required", http.StatusBadRequest)
 			return
 		}
-
 		ctx := context.Background()
 		res, err := client.CreateMovie(ctx, &pb.CreateMovieRequest{
 			Movie: &pb.Movie{
@@ -110,7 +110,7 @@ func main() {
 	}).Methods(http.MethodPost)
 
 	// Read movie by movie id
-	authRouter.HandleFunc("/movies/{id}", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/movies/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var movie model.Movie
 
 		movie.ID = mux.Vars(r)["id"]
@@ -134,7 +134,7 @@ func main() {
 	}).Methods(http.MethodGet)
 
 	// Read all movies
-	authRouter.HandleFunc("/movies", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/movies", func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.Background()
 		res, err := client.GetMovies(ctx, &pb.GetMoviesRequest{})
 		if err != nil {
@@ -153,20 +153,15 @@ func main() {
 		movieID := mux.Vars(r)["id"]
 
 		var movie model.Movie
-		err := r.ParseMultipartForm(32 << 20)
+		err := json.NewDecoder(r.Body).Decode(&movie)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
-		movie.Title = r.PostFormValue("title")
-		movie.Genre = r.PostFormValue("genre")
-
 		if movie.Title == "" {
 			http.Error(w, "title is required", http.StatusBadRequest)
 			return
 		}
-
 		if movie.Genre == "" {
 			http.Error(w, "genre is required", http.StatusBadRequest)
 			return
@@ -174,6 +169,7 @@ func main() {
 
 		ctx := context.Background()
 		res, err := client.UpdateMovie(ctx, &pb.UpdateMovieRequest{
+			Id: movieID,
 			Movie: &pb.Movie{
 				Id:    movieID,
 				Title: movie.Title,
@@ -219,10 +215,10 @@ func main() {
 	user := r.PathPrefix("/user").Subrouter()
 	user.Path("/register").HandlerFunc(user2.RegisterUser).Methods(http.MethodPost)
 	user.Path("/login").HandlerFunc(user2.LoginUsers).Methods(http.MethodPost)
-	user.Path("/{id}").HandlerFunc(user2.GetUser).Methods(http.MethodGet)
-	user.Path("/").HandlerFunc(user2.GetUsers).Methods(http.MethodGet)
-	user.Path("/{id}/update").HandlerFunc(user2.UpdateUser).Methods(http.MethodPut)
-	user.Path("/{id}/delete").HandlerFunc(user2.DeleteUser).Methods(http.MethodDelete)
+	user.Path("/{user_id}").HandlerFunc(user2.GetUser).Methods(http.MethodGet)
+	user.Path("").HandlerFunc(user2.GetUsers).Methods(http.MethodGet)
+	user.Path("/{user_id}/update").HandlerFunc(user2.UpdateUser).Methods(http.MethodPut)
+	user.Path("/{user_id}/delete").HandlerFunc(user2.DeleteUser).Methods(http.MethodDelete)
 
 	//client3 for upload image on aws microservice
 	image := r.PathPrefix("/image").Subrouter()
@@ -238,13 +234,22 @@ func main() {
 // Enable CORS middleware
 func enableCors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Allow all origins
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// Allow specific methods
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		// Allow specific headers
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		// Allow credentials (if needed)
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 		if r.Method == "OPTIONS" {
+			// Handle preflight requests
 			w.WriteHeader(http.StatusOK)
 			return
 		}
+
+		// Call the next handler
 		next.ServeHTTP(w, r)
 	})
 }

@@ -2,22 +2,18 @@ syntax = "proto3";
 
 import "google/api/annotations.proto";
 
-
-
 package pb;
-
 
 option go_package = "/pb";
 
 message Register {
-  string user_id = 1 ;
+  string user_id = 1;
   string user_name = 2;
   string user_address = 3;
   string user_phone = 4;
   string user_email = 5;
   string user_dob = 6;
-  string user_gender = 7;
-  string user_photo = 8;
+  string image_id = 7;
 }
 
 message Login {
@@ -30,7 +26,7 @@ message GetOneUser {
 }
 
 message CreateRegisterRequest{
-  Register userRegister =1;
+  Register userRegister =1 ;
 }
 
 message CreateRegisterResponse {
@@ -38,7 +34,8 @@ message CreateRegisterResponse {
 }
 
 message GetOneUserRequest {
-  GetOneUser userRegister = 1;
+  string user_id=1;
+  GetOneUser userRegister = 2;
 }
 
 message GetOneUserResponse {
@@ -60,7 +57,8 @@ message GetUsersResponse {
 }
 
 message UpdateUserRequest {
-  Register UpdateUser = 1;
+  string user_id=1;
+  Register UpdateUser = 2;
 }
 
 message UpdateUserResponse {
@@ -78,35 +76,35 @@ message DeleteUserResponse {
 service UserService {
   rpc RegisterUser(CreateRegisterRequest) returns(CreateRegisterResponse){
     option (google.api.http) = {
-      post: "/v1/user/create"
+      post: "/user/register"
       body:"*"
     };
   }
   rpc GetUser(GetOneUserRequest) returns (GetOneUserResponse) {
     option (google.api.http) = {
-      get: "/v1/user/get"
+      get: "/user/{user_id}"
     };
   }
   rpc LoginUser(CreateLoginRequest) returns (CreateLoginResponse) {
     option (google.api.http) = {
-      post: "/v1/users/login",
+      post: "/user/login",
       body: "*"
     };
   }
   rpc GetMultipleUsers(GetUsersRequest) returns (GetUsersResponse) {
     option (google.api.http) = {
-      get: "/v1/users/get"
+      get: "/user"
     };
   }
   rpc UpdateUserDetail(UpdateUserRequest) returns (UpdateUserResponse) {
     option (google.api.http) = {
-      put: "/v1/user/update",
+      put: "/user/{user_id}/update",
       body: "*"
     };
   }
   rpc DeleteUserDetail(DeleteUserRequest) returns (DeleteUserResponse) {
     option (google.api.http) = {
-      delete: "/v1/user/delete"
+      delete: "/user/{user_id}/delete"
     };
   }
 }

@@ -88,21 +88,19 @@ definitions:
     type: object
   pbRegister:
     properties:
+      imageId:
+        type: string
       userAddress:
         type: string
       userDob:
         type: string
       userEmail:
         type: string
-      userGender:
-        type: string
       userId:
         type: string
       userName:
         type: string
       userPhone:
-        type: string
-      userPhoto:
         type: string
     type: object
   pbUpdateMovieResponse:

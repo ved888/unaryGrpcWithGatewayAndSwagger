@@ -17,7 +17,7 @@ message UploadImageResponse {
 service ImageService {
   rpc UploadImage(UploadImageRequest) returns (UploadImageResponse){
     option (google.api.http) = {
-      post: "/v1/image/upload"
+      post: "/image/aws"
       body:"*"
     };
   };

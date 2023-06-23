@@ -62,7 +62,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 			UserPhone:   user.Phone,
 			UserEmail:   user.Email,
 			UserDob:     user.DOB,
-			UserPhoto:   user.Image,
+			ImageId:     user.Image,
 		},
 	})
 	if err != nil {
@@ -80,7 +80,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 // GetUser get user details by user id
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	userID := vars["id"]
+	userID := vars["user_id"]
 	if userID == "" {
 		http.Error(w, "id is required", http.StatusBadRequest)
 		return
@@ -173,7 +173,7 @@ func LoginUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	userID := mux.Vars(r)["id"]
+	userID := mux.Vars(r)["user_id"]
 
 	var user model.Register
 	err := r.ParseMultipartForm(32 << 20)
@@ -215,7 +215,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	var user model.Register
 
-	user.Id = mux.Vars(r)["id"]
+	user.Id = mux.Vars(r)["user_id"]
 	if user.Id == "" {
 		http.Error(w, "id is required", http.StatusBadRequest)
 		return

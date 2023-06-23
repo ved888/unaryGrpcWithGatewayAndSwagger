@@ -22,7 +22,7 @@
     "application/json"
   ],
   "paths": {
-    "/v1/image/upload": {
+    "/image/aws": {
       "post": {
         "operationId": "ImageService_UploadImage",
         "responses": {
@@ -54,7 +54,27 @@
         ]
       }
     },
-    "/v1/movie/create": {
+    "/movies": {
+      "get": {
+        "operationId": "MovieService_GetMovies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetMoviesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MovieService"
+        ]
+      },
       "post": {
         "operationId": "MovieService_CreateMovie",
         "responses": {
@@ -86,37 +106,7 @@
         ]
       }
     },
-    "/v1/movie/delete": {
-      "delete": {
-        "operationId": "MovieService_DeleteMovie",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/pbDeleteMovieResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "MovieService"
-        ]
-      }
-    },
-    "/v1/movie/get": {
+    "/movies/{id}": {
       "get": {
         "operationId": "MovieService_GetMovie",
         "responses": {
@@ -136,24 +126,22 @@
         "parameters": [
           {
             "name": "id",
-            "in": "query",
-            "required": false,
+            "in": "path",
+            "required": true,
             "type": "string"
           }
         ],
         "tags": [
           "MovieService"
         ]
-      }
-    },
-    "/v1/movie/gets": {
-      "get": {
-        "operationId": "MovieService_GetMovies",
+      },
+      "delete": {
+        "operationId": "MovieService_DeleteMovie",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/pbGetMoviesResponse"
+              "$ref": "#/definitions/pbDeleteMovieResponse"
             }
           },
           "default": {
@@ -163,12 +151,18 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "tags": [
           "MovieService"
         ]
-      }
-    },
-    "/v1/movie/update": {
+      },
       "put": {
         "operationId": "MovieService_UpdateMovie",
         "responses": {
@@ -187,11 +181,22 @@
         },
         "parameters": [
           {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/pbUpdateMovieRequest"
+              "type": "object",
+              "properties": {
+                "movie": {
+                  "$ref": "#/definitions/pbMovie"
+                }
+              }
             }
           }
         ],
@@ -200,7 +205,61 @@
         ]
       }
     },
-    "/v1/user/create": {
+    "/user": {
+      "get": {
+        "operationId": "UserService_GetMultipleUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetUsersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/user/login": {
+      "post": {
+        "operationId": "UserService_LoginUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreateLoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbCreateLoginRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/user/register": {
       "post": {
         "operationId": "UserService_RegisterUser",
         "responses": {
@@ -232,7 +291,43 @@
         ]
       }
     },
-    "/v1/user/delete": {
+    "/user/{userId}": {
+      "get": {
+        "operationId": "UserService_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbGetOneUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userRegister.userId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/user/{userId}/delete": {
       "delete": {
         "operationId": "UserService_DeleteUserDetail",
         "responses": {
@@ -252,8 +347,8 @@
         "parameters": [
           {
             "name": "userId",
-            "in": "query",
-            "required": false,
+            "in": "path",
+            "required": true,
             "type": "string"
           }
         ],
@@ -262,37 +357,7 @@
         ]
       }
     },
-    "/v1/user/get": {
-      "get": {
-        "operationId": "UserService_GetUser",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/pbGetOneUserResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "userRegister.userId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "UserService"
-        ]
-      }
-    },
-    "/v1/user/update": {
+    "/user/{userId}/update": {
       "put": {
         "operationId": "UserService_UpdateUserDetail",
         "responses": {
@@ -311,65 +376,22 @@
         },
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
+            "name": "userId",
+            "in": "path",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/pbUpdateUserRequest"
-            }
-          }
-        ],
-        "tags": [
-          "UserService"
-        ]
-      }
-    },
-    "/v1/users/get": {
-      "get": {
-        "operationId": "UserService_GetMultipleUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/pbGetUsersResponse"
-            }
+            "type": "string"
           },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "UserService"
-        ]
-      }
-    },
-    "/v1/users/login": {
-      "post": {
-        "operationId": "UserService_LoginUser",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/pbCreateLoginResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/pbCreateLoginRequest"
+              "type": "object",
+              "properties": {
+                "UpdateUser": {
+                  "$ref": "#/definitions/pbRegister"
+                }
+              }
             }
           }
         ],
@@ -536,19 +558,8 @@
         "userDob": {
           "type": "string"
         },
-        "userGender": {
+        "imageId": {
           "type": "string"
-        },
-        "userPhoto": {
-          "type": "string"
-        }
-      }
-    },
-    "pbUpdateMovieRequest": {
-      "type": "object",
-      "properties": {
-        "movie": {
-          "$ref": "#/definitions/pbMovie"
         }
       }
     },
@@ -557,14 +568,6 @@
       "properties": {
         "movie": {
           "$ref": "#/definitions/pbMovie"
-        }
-      }
-    },
-    "pbUpdateUserRequest": {
-      "type": "object",
-      "properties": {
-        "UpdateUser": {
-          "$ref": "#/definitions/pbRegister"
         }
       }
     },

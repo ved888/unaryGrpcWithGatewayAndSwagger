@@ -36,6 +36,7 @@ func (s *server) CreateMovie(ctx context.Context, req *pb.CreateMovieRequest) (*
 
 	movieId, err := s.DAO.MovieCreate(&data)
 	if err != nil {
+		log.Printf("Failed to create movie: %v", err)
 		return nil, err
 	}
 
@@ -52,6 +53,7 @@ func (s *server) GetMovie(ctx context.Context, req *pb.GetMovieRequest) (*pb.Get
 	fmt.Println("Read Movie by id :", req.GetId())
 	movie, err := s.DAO.GetMovieById(req.GetId())
 	if err != nil {
+		log.Printf("Failed to get movie: %v", err)
 		return nil, err
 	}
 	return &pb.GetMovieResponse{
@@ -67,9 +69,9 @@ func (s *server) GetMovies(ctx context.Context, req *pb.GetMoviesRequest) (*pb.G
 	fmt.Println("Read Movies")
 	movies, err := s.DAO.GetAllMovies()
 	if err != nil {
+		log.Printf("Failed to get movies: %v", err)
 		return nil, err
 	}
-
 	pbMovies := make([]*pb.Movie, len(movies))
 	for i, movie := range movies {
 		pbMovies[i] = &pb.Movie{
@@ -94,6 +96,7 @@ func (s *server) UpdateMovie(ctx context.Context, req *pb.UpdateMovieRequest) (*
 	}
 	err := s.DAO.UpdateMovie(data, movie.GetId())
 	if err != nil {
+		log.Printf("Failed to update movie: %v", err)
 		return nil, err
 	}
 	return &pb.UpdateMovieResponse{
@@ -110,6 +113,7 @@ func (s *server) DeleteMovie(ctx context.Context, req *pb.DeleteMovieRequest) (*
 	fmt.Println("delete movie")
 	err := s.DAO.DeleteMovie(req.GetId())
 	if err != nil {
+		log.Printf("Failed to delete movie: %v", err)
 		return nil, err
 	}
 	return &pb.DeleteMovieResponse{
@@ -117,7 +121,6 @@ func (s *server) DeleteMovie(ctx context.Context, req *pb.DeleteMovieRequest) (*
 		},
 		nil
 }
-
 func main() {
 	flag.Parse()
 

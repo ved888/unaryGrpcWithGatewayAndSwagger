@@ -5,6 +5,8 @@ import "google/api/annotations.proto";
 package pb;
 option go_package = "/pb";
 
+
+
 message Movie {
   string id = 1;
   string title = 2;
@@ -34,7 +36,9 @@ message GetMoviesResponse {
 }
 
 message UpdateMovieRequest {
-  Movie movie=1;
+  string id = 1;
+  Movie movie=2;
+
 }
 
 message UpdateMovieResponse {
@@ -52,29 +56,31 @@ message DeleteMovieResponse {
 service MovieService {
   rpc CreateMovie(CreateMovieRequest) returns (CreateMovieResponse) {
     option (google.api.http) = {
-      post: "/v1/movie/create",
+      post: "/movies",
       body: "*",
     };
+
   }
+
   rpc GetMovie(GetMovieRequest) returns (GetMovieResponse) {
     option (google.api.http) = {
-      get: "/v1/movie/get"
+      get: "/movies/{id}"
     };
   }
   rpc GetMovies(GetMoviesRequest) returns (GetMoviesResponse) {
     option (google.api.http) = {
-      get: "/v1/movie/gets"
+      get: "/movies"
     };
   }
   rpc UpdateMovie(UpdateMovieRequest) returns (UpdateMovieResponse) {
     option (google.api.http) = {
-      put: "/v1/movie/update",
+      put: "/movies/{id}",
       body: "*"
     };
   }
   rpc DeleteMovie(DeleteMovieRequest) returns (DeleteMovieResponse) {
     option (google.api.http) = {
-      delete: "/v1/movie/delete"
+      delete:"/movies/{id}"
     };
   }
 }
