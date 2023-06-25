@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 package pb;
 option go_package = "/pb";
-
 
 
 message Movie {
@@ -23,6 +23,7 @@ message CreateMovieResponse {
 
 message GetMovieRequest {
   string id = 1;
+
 }
 
 message GetMovieResponse {
@@ -53,34 +54,86 @@ message DeleteMovieResponse {
   bool success = 1;
 }
 
+
+
 service MovieService {
   rpc CreateMovie(CreateMovieRequest) returns (CreateMovieResponse) {
     option (google.api.http) = {
       post: "/movies",
-      body: "*",
+      body:"*"
     };
-
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Authentication";
+          value: {}
+        }
+      }
+    };
   }
 
   rpc GetMovie(GetMovieRequest) returns (GetMovieResponse) {
     option (google.api.http) = {
       get: "/movies/{id}"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security:{
+        security_requirement:{
+          key:"x-api-key";
+        }
+      }
+    };
   }
+
+
   rpc GetMovies(GetMoviesRequest) returns (GetMoviesResponse) {
     option (google.api.http) = {
-      get: "/movies"
+      get: "/movies",
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security:{
+        security_requirement:{
+          key:"x-api-key";
+        }
+      };
+      parameters:{
+        headers:{
+          name:"x-api-key";
+          description:"auth key";
+          required:true;
+          type:STRING;
+        }
+      }
     };
   }
+
   rpc UpdateMovie(UpdateMovieRequest) returns (UpdateMovieResponse) {
     option (google.api.http) = {
-      put: "/movies/{id}",
-      body: "*"
-    };
-  }
-  rpc DeleteMovie(DeleteMovieRequest) returns (DeleteMovieResponse) {
+    put: "/movies/{id}",
+        body: "*"
+        };
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        security: {
+          security_requirement: {
+            key: "Authentication";
+            value: {}
+          }
+        }
+      };
+    }
+
+    rpc DeleteMovie(DeleteMovieRequest) returns (DeleteMovieResponse) {
     option (google.api.http) = {
-      delete:"/movies/{id}"
-    };
-  }
+    delete:"/movies/{id}"
+        };
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        security: {
+          security_requirement: {
+            key: "Authentication";
+            value: {}
+          }
+        }
+      };
+   }
 }
+

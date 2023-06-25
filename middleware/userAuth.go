@@ -1,4 +1,4 @@
-package jwtUser
+package middleware
 
 import (
 	"errors"
@@ -106,4 +106,27 @@ func Auth() mux.MiddlewareFunc {
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+// EnableCors middleware
+func EnableCors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Allow all origins
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// Allow specific methods
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		// Allow specific headers
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		// Allow credentials (if needed)
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		if r.Method == "OPTIONS" {
+			// Handle preflight requests
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Call the next handler
+		next.ServeHTTP(w, r)
+	})
 }

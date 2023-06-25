@@ -21,6 +21,19 @@ var Conn3, _ = grpc.Dial("localhost:50053", grpc.WithTransportCredentials(insecu
 
 var Client3 = pb.NewImageServiceClient(Conn3)
 
+// UploadImage
+// @Summary upload image for particular user.
+// @Description upload image with the input payload.
+// @Tags Image
+// @Param file formData file true "upload file"
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Security ApiKeyAuth
+// @Router /image/aws/ [post]
 func UploadImage(w http.ResponseWriter, r *http.Request) {
 	var image model.Image
 	// Parse the multipart form data

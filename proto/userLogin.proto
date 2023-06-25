@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 package pb;
 
@@ -79,32 +80,85 @@ service UserService {
       post: "/user/register"
       body:"*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Authentication";
+          value: {}
+        }
+      }
+    };
   }
+
   rpc GetUser(GetOneUserRequest) returns (GetOneUserResponse) {
     option (google.api.http) = {
       get: "/user/{user_id}"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Authentication";
+          value: {}
+        }
+      }
+    };
   }
+
   rpc LoginUser(CreateLoginRequest) returns (CreateLoginResponse) {
     option (google.api.http) = {
       post: "/user/login",
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Authentication";
+          value: {}
+        }
+      }
+    };
   }
+
   rpc GetMultipleUsers(GetUsersRequest) returns (GetUsersResponse) {
     option (google.api.http) = {
       get: "/user"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Authentication";
+          value: {}
+        }
+      }
+    };
   }
+
   rpc UpdateUserDetail(UpdateUserRequest) returns (UpdateUserResponse) {
     option (google.api.http) = {
       put: "/user/{user_id}/update",
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Authentication";
+          value: {}
+        }
+      }
+    };
   }
+
   rpc DeleteUserDetail(DeleteUserRequest) returns (DeleteUserResponse) {
     option (google.api.http) = {
       delete: "/user/{user_id}/delete"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "Authentication";
+          value: {}
+        }
+      }
     };
   }
 }

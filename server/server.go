@@ -121,6 +121,7 @@ func (s *server) DeleteMovie(ctx context.Context, req *pb.DeleteMovieRequest) (*
 		},
 		nil
 }
+
 func main() {
 	flag.Parse()
 
