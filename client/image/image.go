@@ -33,7 +33,7 @@ var Client3 = pb.NewImageServiceClient(Conn3)
 // @Failure 404
 // @Failure 500
 // @Security ApiKeyAuth
-// @Router /image/aws/ [post]
+// @Router /image/aws [post]
 func UploadImage(w http.ResponseWriter, r *http.Request) {
 	var image model.Image
 	// Parse the multipart form data

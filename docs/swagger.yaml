@@ -1,4 +1,11 @@
 definitions:
+  model.Login:
+    properties:
+      UserEmail:
+        type: string
+      UserPhone:
+        type: string
+    type: object
   model.Movie:
     properties:
       genre:
@@ -25,6 +32,13 @@ definitions:
       userId:
         type: string
     type: object
+  model.Update:
+    properties:
+      Address:
+        type: string
+      Name:
+        type: string
+    type: object
 info:
   contact:
     name: gRPC
@@ -34,7 +48,7 @@ info:
   title: gRPC service
   version: "1.0"
 paths:
-  /image/aws/:
+  /image/aws:
     post:
       consumes:
       - application/json
@@ -184,7 +198,7 @@ paths:
       summary: update movie for given field.
       tags:
       - Movie
-  /user/:
+  /user/auth/:
     get:
       consumes:
       - application/json
@@ -203,32 +217,7 @@ paths:
       summary: Get details of users
       tags:
       - User
-  /user/{user_id}:
-    get:
-      consumes:
-      - application/json
-      description: Get details of user by id
-      parameters:
-      - description: get user by id
-        in: path
-        name: use_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "500":
-          description: Internal Server Error
-      security:
-      - ApiKeyAuth: []
-      summary: Get details of user by id
-      tags:
-      - User
-  /user/{user_id}/:
+  /user/auth/{user_id}:
     delete:
       consumes:
       - application/json
@@ -253,6 +242,30 @@ paths:
       summary: delete user detail by given id.
       tags:
       - User
+    get:
+      consumes:
+      - application/json
+      description: Get details of user by id
+      parameters:
+      - description: get user by id
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Get details of user by id
+      tags:
+      - User
     put:
       consumes:
       - application/json
@@ -263,7 +276,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/model.Register'
+          $ref: '#/definitions/model.Update'
       - description: update user by id
         in: path
         name: user_id
@@ -289,16 +302,12 @@ paths:
       - application/json
       description: login user with the input payload.
       parameters:
-      - description: get user by phone
-        in: path
-        name: userPhone
+      - description: login User
+        in: body
+        name: login
         required: true
-        type: string
-      - description: get user by email
-        in: path
-        name: userEmail
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/model.Login'
       produces:
       - application/json
       responses:
@@ -308,8 +317,6 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-      security:
-      - ApiKeyAuth: []
       summary: login user by given phone and email.
       tags:
       - User
@@ -334,8 +341,6 @@ paths:
           description: Bad Request
         "500":
           description: Internal Server Error
-      security:
-      - ApiKeyAuth: []
       summary: Register user by given particular field.
       tags:
       - User

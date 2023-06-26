@@ -28,21 +28,14 @@ var Client2 = pb.NewUserServiceClient(Conn2)
 // @Success 201
 // @Failure 400
 // @Failure 500
-// @Security     ApiKeyAuth
 // @Router /user/register [post]
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var user model.Register
-	err := r.ParseMultipartForm(32 << 20)
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	user.Name = r.PostFormValue("name")
-	user.Address = r.PostFormValue("address")
-	user.Phone = r.PostFormValue("phone")
-	user.Email = r.PostFormValue("email")
-	user.DOB = r.PostFormValue("dob")
-	user.Image = r.PostFormValue("image")
 
 	if user.Name == "" {
 		http.Error(w, "name is required", http.StatusBadRequest)
@@ -56,8 +49,17 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "phone is required", http.StatusBadRequest)
 		return
 	}
+	if len(user.Phone) != 10 {
+		http.Error(w, "phone number is not valid", http.StatusBadRequest)
+		return
+	}
 	if user.Email == "" {
 		http.Error(w, "email is required", http.StatusBadRequest)
+		return
+	}
+	_, err = mail.ParseAddress(user.Email)
+	if err != nil {
+		http.Error(w, "error: Email is not valid", http.StatusBadRequest)
 		return
 	}
 	if user.DOB == "" {
@@ -92,14 +94,14 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 // @Summary Get details of user by id
 // @Description Get details of user by id
 // @Tags User
-// @Param use_id path string true "get user by id"
+// @Param user_id path string true "get user by id"
 // @Accept  json
 // @Produce  json
 // @Success 200
 // @Failure 400
 // @Failure 500
 // @Security ApiKeyAuth
-// @Router /user/{user_id} [get]
+// @Router /user/auth/{user_id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userID := vars["user_id"]
@@ -139,7 +141,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 // @Failure 400
 // @Failure 500
 // @Security ApiKeyAuth
-// @Router /user/ [get]
+// @Router /user/auth/ [get]
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	res, err := Client2.GetMultipleUsers(ctx, &pb.GetUsersRequest{})
@@ -158,37 +160,40 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 // @Summary login user by given phone and email.
 // @Description login user with the input payload.
 // @Tags User
-// @Param userPhone path string true "get user by phone"
-// @Param userEmail path string true "get user by email"
+// @Param login body model.Login true "login User"
 // @Accept json
 // @Produce json
 // @Success 201
 // @Failure 400
 // @Failure 500
-// @Security     ApiKeyAuth
 // @Router /user/login [post]
 func LoginUsers(w http.ResponseWriter, r *http.Request) {
 	// Create a context
 	ctx := context.Background()
-	//defer Conn2.Close()
-	userPhone := r.PostFormValue("phone")
-	userEmail := r.PostFormValue("email")
+
+	var login model.Login
+
+	err := json.NewDecoder(r.Body).Decode(&login)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	//validate user mobile number
-	if userPhone == "" {
+	if login.UserPhone == "" {
 		http.Error(w, "error: user phone is required", http.StatusBadRequest)
 		return
 	}
-	if len(userPhone) != 10 {
+	if len(login.UserPhone) != 10 {
 		http.Error(w, "phone number is not valid", http.StatusBadRequest)
 		return
 	}
 	//validate user email address
-	if userEmail == "" {
+	if login.UserEmail == "" {
 		http.Error(w, "error: user email is required", http.StatusBadRequest)
 		return
 	}
-	_, err := mail.ParseAddress(userEmail)
+	_, err = mail.ParseAddress(login.UserEmail)
 	if err != nil {
 		http.Error(w, "error: Email is not valid", http.StatusBadRequest)
 		return
@@ -196,8 +201,8 @@ func LoginUsers(w http.ResponseWriter, r *http.Request) {
 
 	res, err := Client2.LoginUser(ctx, &pb.CreateLoginRequest{
 		UserLogin: &pb.Login{
-			UserPhone: userPhone,
-			UserEmail: userEmail,
+			UserPhone: login.UserPhone,
+			UserEmail: login.UserEmail,
 		},
 	})
 	if err != nil {
@@ -220,7 +225,7 @@ func LoginUsers(w http.ResponseWriter, r *http.Request) {
 // @Summary update user detail by given field.
 // @Description update user detail with the given user fields.
 // @Tags User
-// @Param user body model.Register true "update user"
+// @Param user body model.Update true "update user"
 // @Param user_id path string true "update user by id"
 // @Accept json
 // @Produce json
@@ -228,19 +233,16 @@ func LoginUsers(w http.ResponseWriter, r *http.Request) {
 // @Failure 400
 // @Failure 500
 // @Security ApiKeyAuth
-// @Router /user/{user_id}/ [put]
+// @Router /user/auth/{user_id} [put]
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	userID := mux.Vars(r)["user_id"]
 
-	var user model.Register
-	err := r.ParseMultipartForm(32 << 20)
+	var user model.Update
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	user.Name = r.PostFormValue("name")
-	user.Address = r.PostFormValue("address")
 
 	if user.Name == "" {
 		http.Error(w, "name is required", http.StatusBadRequest)
@@ -280,7 +282,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 // @Failure 400
 // @Failure 500
 // @Security ApiKeyAuth
-// @Router /user/{user_id}/ [delete]
+// @Router /user/auth/{user_id} [delete]
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	var user model.Register
 

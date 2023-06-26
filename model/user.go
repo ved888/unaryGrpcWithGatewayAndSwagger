@@ -15,3 +15,13 @@ type Image struct {
 	BucketName string `json:"bucketName" db:"bucket_name"`
 	Path       string `json:"path" db:"path"`
 }
+
+type Login struct {
+	UserPhone string `json:"UserPhone" db:"phone"`
+	UserEmail string `json:"UserEmail" db:"email"`
+}
+
+type Update struct {
+	Name    string `json:"Name" db:"name"`
+	Address string `json:"Address" db:"address"`
+}

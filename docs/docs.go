@@ -20,7 +20,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/image/aws/": {
+        "/image/aws": {
             "post": {
                 "security": [
                     {
@@ -259,7 +259,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/": {
+        "/user/auth/": {
             "get": {
                 "security": [
                     {
@@ -290,96 +290,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/login": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "login user with the input payload.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "login user by given phone and email.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "get user by phone",
-                        "name": "userPhone",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "get user by email",
-                        "name": "userEmail",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/user/register": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Register user with the input payload.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Register user by given particular field.",
-                "parameters": [
-                    {
-                        "description": "Create User",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.Register"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/user/{user_id}": {
+        "/user/auth/{user_id}": {
             "get": {
                 "security": [
                     {
@@ -401,7 +312,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "get user by id",
-                        "name": "use_id",
+                        "name": "user_id",
                         "in": "path",
                         "required": true
                     }
@@ -417,9 +328,7 @@ const docTemplate = `{
                         "description": "Internal Server Error"
                     }
                 }
-            }
-        },
-        "/user/{user_id}/": {
+            },
             "put": {
                 "security": [
                     {
@@ -444,7 +353,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Register"
+                            "$ref": "#/definitions/model.Update"
                         }
                     },
                     {
@@ -505,9 +414,94 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/login": {
+            "post": {
+                "description": "login user with the input payload.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "login user by given phone and email.",
+                "parameters": [
+                    {
+                        "description": "login User",
+                        "name": "login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/user/register": {
+            "post": {
+                "description": "Register user with the input payload.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Register user by given particular field.",
+                "parameters": [
+                    {
+                        "description": "Create User",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Register"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "model.Login": {
+            "type": "object",
+            "properties": {
+                "UserEmail": {
+                    "type": "string"
+                },
+                "UserPhone": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Movie": {
             "type": "object",
             "properties": {
@@ -544,6 +538,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Update": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "Name": {
                     "type": "string"
                 }
             }
