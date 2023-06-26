@@ -1,1 +1,1 @@
-# unaryGrpcWithGetwayAndSwagger
+# unaryGrpcWithGatewayAndSwagger
