@@ -32,7 +32,6 @@ var (
 func main() {
 
 	//utility.ConvertJSONToYML()
-
 	r := mux.NewRouter()
 	router.UserRouter(r)
 	router.MovieRouter(r)
@@ -43,12 +42,6 @@ func main() {
 		httpSwagger.URL("/swagger/doc.json"), // The URL path to the generated Swagger JSON file
 	))
 
-	// set swagger ui router
-	//openAPIHandler := openapiv2.NewHandler()
-	//r.PathPrefix("/q/").Handler(openAPIHandler)
-
-	// run swagger ui on browser by this url
-	//Run swagger ui on browser by this url : http://localhost:8080/q/swagger-ui/
 	fmt.Println("Run swagger ui on browser by this url : http://localhost:8080/swagger/index.html")
 
 	//fmt.Println("http server client Running port:8080")

@@ -10,9 +10,6 @@ import (
 func MovieRouter(r *mux.Router) {
 	// Enable CORS middleware
 	r.Use(middleware.EnableCors)
-	// apply jwt Authentication
-	//authRouter := r.PathPrefix("/auth").Subrouter()
-	//authRouter.Use(middleware.Auth())
 
 	//client for movie microservice
 	movies := r.PathPrefix("/movies").Subrouter()
